@@ -17,6 +17,7 @@ const config = {
     "@typescript-eslint/consistent-type-imports": "error",
     "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-empty-object-type": "off",
     "@typescript-eslint/no-unused-vars": [
       "error",
       {

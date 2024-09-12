@@ -1,12 +1,19 @@
 {
-  "name": "@wopjs/template",
+  "name": "@wopjs/event",
   "version": "0.1.0",
-  "description": "Collection of common utilities.",
-  "repository": "wopjs/template",
+  "description": "An event that can be subscribed to.",
+  "license": "MIT",
+  "repository": "wopjs/event",
+  "keywords": [
+    "event",
+    "listener",
+    "emitter",
+    "subscribe"
+  ],
+  "sideEffects": false,
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
-  "sideEffects": false,
   "files": [
     "src",
     "dist"
@@ -18,11 +25,9 @@
     "test": "vitest",
     "test:coverage": "vitest --coverage",
     "test:ci": "tsc --noEmit && vitest --coverage --coverage.reporter=lcov --coverage.include=src/**",
-    "build": "tsup"
+    "build": "tsup",
+    "gzip-size": "esbuild src/index.ts --bundle --format=esm --mangle-props=_$ --mangle-cache=mangle-cache.json --minify | gzip-size --include-original"
   },
-  "keywords": [
-    "template"
-  ],
   "maintainers": [
     {
       "name": "CRIMX",
@@ -35,19 +40,25 @@
       "url": "https://github.com/hyrious/"
     }
   ],
-  "license": "MIT",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.2.0",
     "@typescript-eslint/parser": "^8.2.0",
     "@vitest/coverage-v8": "^1.5.0",
+    "esbuild": "^0.21.5",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^8.10.0",
     "eslint-plugin-import": "^2.27.5",
+    "gzip-size-cli": "^5.1.0",
     "prettier": "^2.8.8",
     "tsup": "^8.2.4",
     "typedoc": "^0.26.6",
     "typescript": "^5.5.4",
     "vitest": "^1.5.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "tsup>esbuild": "^0.21.5"
+    }
   },
   "packageManager": "pnpm@9.7.0"
 }
