@@ -1,4 +1,4 @@
-const SEND = Symbol.for("send");
+const SEND: unique symbol = /*#__PURE__*/ Symbol.for("send");
 
 export interface AddEventListener<T = void> {
   /** Adds listener, returns a dispose function. */
