@@ -1,8 +1,13 @@
 const SEND: unique symbol = /*#__PURE__*/ Symbol.for("send");
 
-export interface AddEventListener<T = void> {
+/** Generic type for `onSomeEvent`, which is a function itself. */
+export interface IEvent<T = void> {
   /** Adds listener, returns a dispose function. */
   (listener: (data: T) => void): () => void;
+}
+
+/** The return value of `event()`. */
+export interface AddEventListener<T = void> extends IEvent<T> {
   /** Removes listener. */
   off(listener: (data: T) => void): void;
   /** Removes all listeners. */
@@ -38,6 +43,8 @@ const methods = {
 };
 
 /**
+ * Create an event that can be subscribed to, which is the function itself.
+ *
  * @example
  * ```ts
  * import { event, send } from "@wopjs/event";
@@ -61,6 +68,9 @@ export interface Send {
 }
 
 /**
+ * Emit an event to `onSomeEvent`.
+ * It silently fail if the input is not created by `event()`.
+ *
  * @example
  * ```ts
  * import { event, send } from "@wopjs/event";
@@ -68,5 +78,5 @@ export interface Send {
  * send(onDidChange, "data")
  * ```
  */
-export const send: Send = <T>(event: AddEventListener<T>, data?: T) =>
-  event?.[SEND]?.(data as T);
+export const send: Send = <T>(event: IEvent<T>, data?: T) =>
+  (event as AddEventListener<T>)?.[SEND]?.(data as T);
