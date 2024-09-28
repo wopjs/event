@@ -3,11 +3,17 @@
 // Optimize "single listener" case, source from VS Code:
 // https://github.com/microsoft/vscode/blob/541f878/src/vs/base/common/event.ts#L1039-L1041
 
-import { bench } from "vitest";
+import type { AddEventListener } from "./event";
+
+import { bench, describe } from "vitest";
 
 import { event, send } from "./event";
 
-const optimized = <T = void>() => {
+const benchBoth = setupBenchBoth();
+
+const SEND: symbol = /*#__PURE__*/ Symbol.for("send");
+
+const optimized = <T = void>(): AddEventListener<T> => {
   function on(this: any, fn: (data: T) => void) {
     if (this.listeners_ == null) {
       this.listeners_ = fn;
@@ -54,94 +60,126 @@ const optimized = <T = void>() => {
     this.listeners_ = null;
   }
 
-  function addEventListener(fn: (data: T) => void) {
+  const addEventListener = function addEventListener(fn: (data: T) => void) {
     on.call(addEventListener, fn);
     return () => (addEventListener as any).off(fn);
-  }
+  } as AddEventListener<T>;
+
   addEventListener.off = off;
-  addEventListener.send = send;
   addEventListener.dispose = dispose;
+  (addEventListener as any)[SEND] = send;
 
   return addEventListener;
 };
 
-bench("current - construct", () => {
-  event();
+describe("construct", () => {
+  bench("event", () => {
+    event();
+  });
+
+  bench("optimized", () => {
+    optimized();
+  });
 });
-bench("optimized - construct", () => {
-  optimized();
+
+benchBoth("add 1", on => on(() => {}));
+
+benchBoth("add 1 then remove 1", on => on(() => {})());
+
+benchBoth("add 5 then remove 5", on => {
+  const dispose1 = on(() => {});
+  const dispose2 = on(() => {});
+  const dispose3 = on(() => {});
+  const dispose4 = on(() => {});
+  const dispose5 = on(() => {});
+  dispose1();
+  dispose2();
+  dispose3();
+  dispose4();
+  dispose5();
 });
 
-{
-  const onA = event();
-  bench("current - add", () => {
-    onA(() => {});
-  });
-}
+benchBoth("add 5 then remove 3 then add 5", on => {
+  const dispose1 = on(() => {});
+  const dispose2 = on(() => {});
+  const dispose3 = on(() => {});
+  on(() => {});
+  on(() => {});
+  dispose1();
+  dispose2();
+  dispose3();
+  on(() => {});
+  on(() => {});
+  on(() => {});
+  on(() => {});
+  on(() => {});
+});
 
-{
-  const onB = optimized();
-  bench("optimized - add", () => {
-    onB(() => {});
-  });
-}
+benchBoth("send with 0 listener", on => send(on));
 
-{
-  const onA = event();
-  bench("current - add and remove", () => onA(() => {})());
-}
+benchBoth(
+  "send with 1 listener",
+  on => send(on),
+  on => on(() => {})
+);
 
-{
-  const onB = optimized();
-  bench("optimized - add and remove", () => onB(() => {})());
-}
-
-{
-  const onA = event();
-  bench("current - send empty", () => {
-    send(onA);
-  });
-}
-
-{
-  const onB = optimized();
-  bench("optimized - send empty", () => {
-    onB.send();
-  });
-}
-
-{
-  const onA = event();
-  onA(() => {});
-  bench("current - send 1", () => {
-    send(onA);
-  });
-}
-
-{
-  const onB = optimized();
-  onB(() => {});
-  bench("optimized - send 1", () => {
-    onB.send();
-  });
-}
-
-{
-  const onA = event();
-  for (let i = 0; i < 10; i++) {
-    onA(() => {});
+benchBoth(
+  "send with 10 listeners",
+  on => send(on),
+  on => {
+    for (let i = 0; i < 10; i++) {
+      on(() => {});
+    }
   }
-  bench("current - send 10", () => {
-    send(onA);
-  });
-}
+);
 
-{
-  const onB = optimized();
-  for (let i = 0; i < 10; i++) {
-    onB(() => {});
+function setupBenchBoth() {
+  const benchEach = <T = void>(
+    method: "skip" | "only" | "todo" | undefined,
+    type: "event" | "optimized",
+    fn: (on: AddEventListener<T>) => void,
+    setup?: (on: AddEventListener<T>) => void
+  ) => {
+    const benchMethod = method ? bench[method] : bench;
+    let on: AddEventListener<T> | undefined;
+    benchMethod(type, () => fn(on as AddEventListener<T>), {
+      setup() {
+        on = type === "event" ? event() : optimized();
+        setup?.(on);
+      },
+      teardown() {
+        on = void on?.dispose();
+      },
+    });
+  };
+
+  interface BenchBothPlain {
+    <T = void>(
+      name: string,
+      fn: (on: AddEventListener<T>) => void,
+      setup?: (on: AddEventListener<T>) => void
+    ): void;
   }
-  bench("optimized - send 10", () => {
-    onB.send();
-  });
+
+  interface BenchBoth extends BenchBothPlain {
+    only: BenchBothPlain;
+    skip: BenchBothPlain;
+    todo: BenchBothPlain;
+  }
+
+  const createBenchBoth =
+    (method?: "skip" | "only" | "todo"): BenchBothPlain =>
+    (name, fn, setup) => {
+      describe(name, () => {
+        benchEach(method, "event", fn, setup);
+        benchEach(method, "optimized", fn, setup);
+      });
+    };
+
+  const benchBoth = createBenchBoth() as BenchBoth;
+  benchBoth.only = createBenchBoth("only");
+  benchBoth.skip = createBenchBoth("skip");
+  benchBoth.todo = createBenchBoth("skip");
+
+  return benchBoth;
 }
