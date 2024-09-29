@@ -1,6 +1,7 @@
-import type { AddEventListener } from "./event";
+import type { AddEventListener } from "./interface";
 
-import { event, send } from "./event";
+import { event } from "./event";
+import { send } from "./send";
 
 interface FromImpl extends AddEventListener<unknown> {
   dispose_(): void;
