@@ -125,10 +125,10 @@ function setupBenchVariants(
       });
     };
 
-  const benchBoth = createBenchVariants() as BenchVariants;
-  benchBoth.only = createBenchVariants("only");
-  benchBoth.skip = createBenchVariants("skip");
-  benchBoth.todo = createBenchVariants("skip");
+  const benchVariants = createBenchVariants() as BenchVariants;
+  benchVariants.only = createBenchVariants("only");
+  benchVariants.skip = createBenchVariants("skip");
+  benchVariants.todo = createBenchVariants("skip");
 
-  return benchBoth;
+  return benchVariants;
 }
