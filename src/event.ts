@@ -1,1 +1,1 @@
-export { event } from "./internal/variants/set-simple";
+export { event } from "./internal/variants/set-lazy";

@@ -6,7 +6,7 @@
 [![Coverage Status](https://img.shields.io/coverallsCoverage/github/wopjs/event)](https://coveralls.io/github/wopjs/event)
 [![minified-size](https://img.shields.io/bundlephobia/minzip/@wopjs/event)](https://bundlephobia.com/package/@wopjs/event)
 
-A tiny (309 B) utility to create an event that can be subscribed to.
+A tiny utility to create an event that can be subscribed to.
 
 ## Install
 
