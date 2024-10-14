@@ -12,6 +12,8 @@ export interface IEvent<T = void> {
 
 /** The return value of `event()`. */
 export interface AddEventListener<T = void> extends IEvent<T> {
+  /** Size of listeners. */
+  size(): number;
   /** Removes listener. */
   off(listener: Listener<T>): void;
   /** Removes all listeners. */

@@ -21,6 +21,10 @@ function send<T = void>(this: AddEventListenerImpl<T>, data: T): void {
   }
 }
 
+function size<T = void>(this: AddEventListenerImpl<T>): number {
+  return this.size_;
+}
+
 function on<T = void>(
   this: AddEventListenerImpl<T>,
   listener: Listener<T>
@@ -90,6 +94,7 @@ export const event = <T = void>(): AddEventListener<T> => {
     return () => addEventListener.off(listener);
   }
   addEventListener.size_ = 0;
+  addEventListener.size = size;
   addEventListener.off = off;
   addEventListener.dispose = dispose;
   addEventListener[SEND] = send;
