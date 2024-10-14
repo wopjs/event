@@ -24,8 +24,8 @@ function size<T = void>(this: AddEventListenerImpl<T>): number {
   return !this.listeners_
     ? 0
     : !this.isMulti_
-    ? 1
-    : (this.listeners_ as Multi).size;
+      ? 1
+      : (this.listeners_ as Multi).size;
 }
 
 function on<T = void>(

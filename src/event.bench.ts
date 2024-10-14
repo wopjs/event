@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 // Optimize "single listener" case, source from VS Code:
 // https://github.com/microsoft/vscode/blob/541f878/src/vs/base/common/event.ts#L1039-L1041
 
