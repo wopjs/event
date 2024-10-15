@@ -75,6 +75,29 @@ describe.each(cases)("$name", ({ event }) => {
     expect(fn3).toHaveBeenCalledTimes(3);
   });
 
+  it("should remove all listeners", () => {
+    const onDidChange = event<string>();
+    expect(onDidChange).toBeDefined();
+
+    const fn1 = vi.fn();
+    onDidChange(fn1);
+    const fn2 = vi.fn();
+    onDidChange(fn2);
+    const fn3 = vi.fn();
+    onDidChange(fn3);
+
+    expect(onDidChange.size()).toBe(3);
+
+    onDidChange.off();
+
+    expect(onDidChange.size()).toBe(0);
+
+    send(onDidChange, "data");
+    expect(fn1).not.toHaveBeenCalled();
+    expect(fn2).not.toHaveBeenCalled();
+    expect(fn3).not.toHaveBeenCalled();
+  });
+
   it("should handle throw error", () => {
     const consoleErrorMock = vi
       .spyOn(console, "error")

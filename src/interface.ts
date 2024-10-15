@@ -12,12 +12,22 @@ export interface IEvent<T = void> {
 
 /** The return value of `event()`. */
 export interface AddEventListener<T = void> extends IEvent<T> {
-  /** Size of listeners. */
+  /**
+   * @returns Size of listeners.
+   */
   size(): number;
-  /** Removes listener. */
-  off(listener: Listener<T>): void;
-  /** Removes all listeners. */
+  /**
+   * Removes listener.
+   * @param listener The callback to remove. If omitted, all listeners are removed.
+   */
+  off(listener?: Listener<T>): void;
+  /**
+   * Removes all listeners.
+   */
   dispose(): void;
 
+  /**
+   * @internal
+   */
   [SEND](data: T): void;
 }
