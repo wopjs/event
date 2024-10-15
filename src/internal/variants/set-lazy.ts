@@ -46,17 +46,19 @@ function on<T = void>(
 function off<T = void>(
   this: AddEventListenerImpl<T>,
   listener?: Listener<T>
-): void {
+): boolean {
+  let found = false;
   if (listener) {
     if (this.isMulti_) {
-      (this.listeners_ as Multi<T>).delete(listener);
-    } else {
-      (this.listeners_ as Single<T>) = null;
+      found = (this.listeners_ as Multi<T>).delete(listener);
+    } else if ((found = this.listeners_ === listener)) {
+      this.listeners_ = null;
     }
-  } else {
+  } else if ((found = this.size() > 0)) {
     this.listeners_ = null;
     this.isMulti_ = false;
   }
+  return found;
 }
 
 function dispose<T = void>(this: AddEventListenerImpl<T>): void {

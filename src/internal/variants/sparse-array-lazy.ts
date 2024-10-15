@@ -45,12 +45,13 @@ function on<T = void>(
 function off<T = void>(
   this: AddEventListenerImpl<T>,
   listener?: Listener<T>
-): void {
+): boolean {
+  let found = false;
   if (listener) {
     if (this.isMulti_) {
       const listeners = this.listeners_ as Multi<T>;
       const index = listeners.indexOf(listener);
-      if (index >= 0) {
+      if ((found = index >= 0)) {
         listeners[index] = undefined;
         this.size_--;
 
@@ -64,15 +65,16 @@ function off<T = void>(
           listeners.length = len;
         }
       }
-    } else {
+    } else if ((found = this.listeners_ === listener)) {
       (this.listeners_ as Single<T>) = null;
       this.size_ = 0;
     }
-  } else {
+  } else if ((found = this.size() > 0)) {
     this.listeners_ = null;
     this.isMulti_ = false;
     this.size_ = 0;
   }
+  return found;
 }
 
 function dispose<T = void>(this: AddEventListenerImpl<T>): void {

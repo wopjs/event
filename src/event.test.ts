@@ -75,6 +75,63 @@ describe.each(cases)("$name", ({ event }) => {
     expect(fn3).toHaveBeenCalledTimes(3);
   });
 
+  it("should remove listener", () => {
+    const onDidChange = event<string>();
+    expect(onDidChange).toBeDefined();
+
+    const fn1 = vi.fn();
+    onDidChange(fn1);
+    const fn2 = vi.fn();
+    onDidChange(fn2);
+    const fn3 = vi.fn();
+    onDidChange(fn3);
+
+    expect(onDidChange.size()).toBe(3);
+
+    expect(onDidChange.off(fn1)).toBe(true);
+
+    expect(onDidChange.size()).toBe(2);
+
+    send(onDidChange, "data");
+    expect(fn1).toBeCalledTimes(0);
+    expect(fn2).toBeCalledTimes(1);
+    expect(fn3).toBeCalledTimes(1);
+
+    fn2.mockClear();
+    fn3.mockClear();
+
+    expect(onDidChange.off(fn2)).toBe(true);
+
+    expect(onDidChange.size()).toBe(1);
+
+    send(onDidChange, "data");
+    expect(fn1).toBeCalledTimes(0);
+    expect(fn2).toBeCalledTimes(0);
+    expect(fn3).toBeCalledTimes(1);
+
+    fn3.mockClear();
+
+    expect(onDidChange.off(() => void 0)).toBe(false);
+
+    expect(onDidChange.size()).toBe(1);
+
+    send(onDidChange, "data");
+    expect(fn1).toBeCalledTimes(0);
+    expect(fn2).toBeCalledTimes(0);
+    expect(fn3).toBeCalledTimes(1);
+
+    fn3.mockClear();
+
+    expect(onDidChange.off(fn3)).toBe(true);
+
+    expect(onDidChange.size()).toBe(0);
+
+    send(onDidChange, "data");
+    expect(fn1).toBeCalledTimes(0);
+    expect(fn2).toBeCalledTimes(0);
+    expect(fn3).toBeCalledTimes(0);
+  });
+
   it("should remove all listeners", () => {
     const onDidChange = event<string>();
     expect(onDidChange).toBeDefined();
@@ -88,7 +145,7 @@ describe.each(cases)("$name", ({ event }) => {
 
     expect(onDidChange.size()).toBe(3);
 
-    onDidChange.off();
+    expect(onDidChange.off()).toBe(true);
 
     expect(onDidChange.size()).toBe(0);
 
@@ -96,6 +153,8 @@ describe.each(cases)("$name", ({ event }) => {
     expect(fn1).not.toHaveBeenCalled();
     expect(fn2).not.toHaveBeenCalled();
     expect(fn3).not.toHaveBeenCalled();
+
+    expect(onDidChange.off()).toBe(false);
   });
 
   it("should handle throw error", () => {

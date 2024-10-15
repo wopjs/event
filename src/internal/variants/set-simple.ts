@@ -16,12 +16,17 @@ function size<T>(this: AddEventListenerImpl<T>): number {
   return this.listeners_.size;
 }
 
-function off<T>(this: AddEventListenerImpl<T>, listener?: Listener<T>): void {
+function off<T>(
+  this: AddEventListenerImpl<T>,
+  listener?: Listener<T>
+): boolean {
+  let found = false;
   if (listener) {
-    this.listeners_.delete(listener);
-  } else {
+    found = this.listeners_.delete(listener);
+  } else if ((found = this.listeners_.size > 0)) {
     this.listeners_.clear();
   }
+  return found;
 }
 
 function dispose<T>(this: AddEventListenerImpl<T>): void {

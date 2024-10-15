@@ -19,8 +19,9 @@ export interface AddEventListener<T = void> extends IEvent<T> {
   /**
    * Removes listener.
    * @param listener The callback to remove. If omitted, all listeners are removed.
+   * @returns Whether the listener was found and removed.
    */
-  off(listener?: Listener<T>): void;
+  off(listener?: Listener<T>): boolean;
   /**
    * Removes all listeners.
    */
