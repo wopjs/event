@@ -28,6 +28,14 @@ function size<T>(this: AddEventListenerImpl<T>): number {
   return this.listeners_.size;
 }
 
+function on<T>(
+  this: AddEventListenerImpl<T>,
+  listener: Listener<T>
+): () => void {
+  this.listeners_.add(listener);
+  return () => this.off(listener);
+}
+
 function off<T>(
   this: AddEventListenerImpl<T>,
   listener?: Listener<T>
@@ -63,11 +71,11 @@ function dispose<T>(this: AddEventListenerImpl<T>): void {
  */
 export const event = <T = void>(): AddEventListener<T> => {
   function addEventListener(listener: Listener<T>): () => void {
-    addEventListener.listeners_.add(listener);
-    return () => addEventListener.off(listener);
+    return addEventListener.on(listener);
   }
   addEventListener.listeners_ = new Set<Listener<T>>();
   addEventListener.size = size;
+  addEventListener.on = on;
   addEventListener.off = off;
   addEventListener.dispose = dispose;
   addEventListener[SEND] = send;
