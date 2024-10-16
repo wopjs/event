@@ -6,7 +6,11 @@ export interface Listener<T = void> {
 
 /** Generic type for `onSomeEvent`, which is a function itself. */
 export interface IEvent<T = void> {
-  /** Adds listener, returns a dispose function. */
+  /**
+   * Adds a listener to the event.
+   * @param listener The callback to add.
+   * @returns A function to remove the listener.
+   */
   (listener: Listener<T>): () => void;
 }
 
@@ -17,14 +21,18 @@ export interface AddEventListener<T = void> extends IEvent<T> {
    */
   size(): number;
   /**
-   * Removes listener.
+   * Adds a listener to the event.
+   * @param listener The callback to add.
+   * @returns A function to remove the listener.
+   */
+  on(listener: Listener<T>): () => void;
+  /**
+   * Removes a listener from the event.
    * @param listener The callback to remove. If omitted, all listeners are removed.
    * @returns Whether the listener was found and removed.
    */
   off(listener?: Listener<T>): boolean;
-  /**
-   * Removes all listeners.
-   */
+
   dispose(): void;
 
   /**

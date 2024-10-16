@@ -95,13 +95,10 @@ function dispose<T = void>(this: AddEventListenerImpl<T>): void {
  */
 export const event = <T = void>(): AddEventListener<T> => {
   function addEventListener(listener: Listener<T>): () => void {
-    on.call<AddEventListenerImpl<T>, [Listener<T>], void>(
-      addEventListener,
-      listener
-    );
-    return () => addEventListener.off(listener);
+    return addEventListener.on(listener);
   }
   addEventListener.size = size;
+  addEventListener.on = on;
   addEventListener.off = off;
   addEventListener.dispose = dispose;
   addEventListener[SEND] = send;
