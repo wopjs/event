@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "stripInternal": true,
     "declaration": true,
     "target": "ESNext",
     "module": "ESNext",

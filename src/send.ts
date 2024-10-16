@@ -1,4 +1,4 @@
-import type { IEvent, AddEventListener } from "./interface";
+import type { AddEventListener } from "./interface";
 
 import { SEND } from "./internal/shared";
 
@@ -18,5 +18,5 @@ export interface Send {
  * send(onDidChange, "data")
  * ```
  */
-export const send: Send = <T>(event: IEvent<T>, data?: T) =>
-  (event as AddEventListener<T>)?.[SEND]?.(data as T);
+export const send: Send = <T>(event: AddEventListener<T>, data?: T) =>
+  event?.[SEND]?.(data as T);
