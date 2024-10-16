@@ -19,10 +19,6 @@ describe.each(cases)("$name", ({ event }) => {
     const fn = vi.fn();
     onDidChange(fn);
     send(onDidChange);
-    expect(fn).toHaveBeenCalled();
-
-    onDidChange.dispose();
-    send(onDidChange);
     expect(fn).toHaveBeenCalledTimes(1);
   });
 
@@ -38,6 +34,31 @@ describe.each(cases)("$name", ({ event }) => {
     dispose();
     send(onDidChange, "data");
     expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it("should log error if sending data after dispose", () => {
+    const consoleErrorMock = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => void 0);
+
+    const onDidChange = event();
+    expect(onDidChange).toBeDefined();
+
+    const fn = vi.fn();
+    onDidChange(fn);
+    send(onDidChange);
+    expect(fn).toHaveBeenCalledTimes(1);
+    expect(consoleErrorMock).not.toBeCalled();
+
+    fn.mockClear();
+
+    onDidChange.dispose();
+    send(onDidChange);
+    expect(fn).toHaveBeenCalledTimes(0);
+
+    expect(consoleErrorMock).toBeCalled();
+
+    consoleErrorMock.mockRestore();
   });
 
   it("should work with multiple listeners", () => {

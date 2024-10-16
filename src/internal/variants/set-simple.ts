@@ -6,7 +6,19 @@ interface AddEventListenerImpl<T> extends AddEventListener<T> {
   listeners_: Set<Listener<T>>;
 }
 
+interface AddEventListenerImplDev<T> extends AddEventListenerImpl<T> {
+  _eventDisposed_?: Error;
+}
+
 function send<T>(this: AddEventListenerImpl<T>, data: T): void {
+  if (process.env.NODE_ENV !== "production") {
+    if ((this as AddEventListenerImplDev<T>)._eventDisposed_) {
+      console.error(
+        new Error("[@wopjs/event:dev] Cannot send. Already disposed.")
+      );
+      console.error((this as AddEventListenerImplDev<T>)._eventDisposed_);
+    }
+  }
   for (const listener of this.listeners_) {
     invoke(listener, data);
   }
@@ -30,6 +42,11 @@ function off<T>(
 }
 
 function dispose<T>(this: AddEventListenerImpl<T>): void {
+  if (process.env.NODE_ENV !== "production") {
+    (this as AddEventListenerImplDev<T>)._eventDisposed_ = new Error(
+      "[@wopjs/event:dev] Disposed at:"
+    );
+  }
   this.off();
 }
 
