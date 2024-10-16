@@ -26,6 +26,101 @@ send(onDidChange, "data"); // logs "data"
 dispose();
 ```
 
+## Patterns
+
+In general, you would export the event directly (which is the `AddEventListener` type) and send it from the class that owns it.
+
+```ts
+// module-a.ts
+
+import { event, send } from "@wopjs/event";
+import { disposableStore } from "@wopjs/disposable";
+
+export class A {
+  public readonly dispose = disposableStore();
+
+  public readonly onStatusDidChange = event<string>();
+
+  public constructor() {
+    this.dispose.add(this.onStatusDidChange);
+
+    this.dispose.add(
+      onOtherEvent(() => {
+        send(this.onStatusDidChange, "loading");
+      })
+    );
+  }
+}
+```
+
+Other modules can then subscribe to the event, but generally not send it.
+
+```ts
+// module-b.ts
+
+import type { A } from "./module-a";
+import { event, send } from "@wopjs/event";
+import { disposableStore } from "@wopjs/disposable";
+
+export class B {
+  public readonly dispose = disposableStore();
+
+  public constructor(a: A) {
+    this.dispose.add(
+      a.onStatusDidChange(status => {
+        console.log(status);
+      })
+    );
+  }
+}
+```
+
+You can also let `module-b` depend only on the event itself so that it does not need to import `module-a` (hence more "pure").
+
+In this case generally you would use the simpler `IEvent` type to define the event.
+
+```ts
+// module-b.ts
+
+import { event, send, IEvent } from "@wopjs/event";
+import { disposableStore } from "@wopjs/disposable";
+
+export class B {
+  public readonly dispose = disposableStore();
+
+  public constructor(onAStatusDidChange: IEvent<string>) {
+    this.dispose.add(
+      onAStatusDidChange(status => {
+        console.log(status);
+      })
+    );
+  }
+}
+```
+
+If you need to let other modules send the event, it is recommended to expose a dedicated method for that.
+
+```ts
+// module-a.ts
+
+import { event, send } from "@wopjs/event";
+import { disposableStore } from "@wopjs/disposable";
+
+export class A {
+  public readonly dispose = disposableStore();
+
+  public readonly onStatusDidChange = event<string>();
+
+  public constructor() {
+    this.dispose.add(onStatusDidChange);
+  }
+
+  public changeStatus(status: string) {
+    send(this.onStatusDidChange, status);
+  }
+}
+```
+
 ## License
 
 MIT @ [wopjs](https://github.com/wopjs)
