@@ -3,7 +3,7 @@
 
 import type { AddEventListener } from "./interface";
 
-import { bench, describe } from "vitest";
+import { run, bench, summary, group, compact } from "mitata";
 
 import { event as eventSetLazy } from "./internal/variants/set-lazy";
 import { event as eventSetSimple } from "./internal/variants/set-simple";
@@ -18,13 +18,12 @@ const cases = [
 
 const benchVariants = setupBenchVariants(cases);
 
-describe("construct", () => {
+const construct = () => {
   for (const { name, event } of cases) {
-    bench(name, () => {
-      event();
-    });
+    bench(name, event);
   }
-});
+};
+group("construct", () => compact(() => summary(construct)));
 
 benchVariants("add 1", on => on(() => {}));
 
@@ -77,56 +76,28 @@ benchVariants(
   }
 );
 
+await run();
+
 function setupBenchVariants(
   cases: Array<{ name: string; event: <T = void>() => AddEventListener<T> }>
 ) {
-  const benchVariant = <T = void>(
-    method: "skip" | "only" | "todo" | undefined,
-    type: string,
+  const benchVariants = <T = void>(
+    name: string,
     fn: (on: AddEventListener<T>) => void,
     setup?: (on: AddEventListener<T>) => void
   ) => {
-    const benchMethod = method ? bench[method] : bench;
-    let on: AddEventListener<T> | undefined;
-    benchMethod(type, () => fn(on as AddEventListener<T>), {
-      setup() {
-        on = cases.find(item => item.name === type)!.event();
-        setup?.(on);
-      },
-      teardown() {
-        on = void on?.dispose();
-      },
-    });
-  };
-
-  interface BenchVariantsBase {
-    <T = void>(
-      name: string,
-      fn: (on: AddEventListener<T>) => void,
-      setup?: (on: AddEventListener<T>) => void
-    ): void;
-  }
-
-  interface BenchVariants extends BenchVariantsBase {
-    only: BenchVariantsBase;
-    skip: BenchVariantsBase;
-    todo: BenchVariantsBase;
-  }
-
-  const createBenchVariants =
-    (method?: "skip" | "only" | "todo"): BenchVariantsBase =>
-    (name, fn, setup) => {
-      describe(name, () => {
-        for (const { name } of cases) {
-          benchVariant(method, name, fn, setup);
-        }
-      });
+    const task = () => {
+      for (const c of cases) {
+        bench(c.name, function* () {
+          const on = c.event<T>();
+          if (setup) setup(on);
+          yield () => fn(on);
+          on.dispose();
+        });
+      }
     };
-
-  const benchVariants = createBenchVariants() as BenchVariants;
-  benchVariants.only = createBenchVariants("only");
-  benchVariants.skip = createBenchVariants("skip");
-  benchVariants.todo = createBenchVariants("skip");
+    group(name, () => compact(() => summary(task)));
+  };
 
   return benchVariants;
 }
