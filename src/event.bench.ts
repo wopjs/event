@@ -3,7 +3,7 @@
 
 import type { AddEventListener } from "./interface";
 
-import { run, bench, summary, group, compact } from "mitata";
+import { run, bench, summary, group, compact, do_not_optimize } from "mitata";
 
 import { event as eventSetLazy } from "./internal/variants/set-lazy";
 import { event as eventSetSimple } from "./internal/variants/set-simple";
@@ -89,10 +89,16 @@ function setupBenchVariants(
     const task = () => {
       for (const c of cases) {
         bench(c.name, function* () {
-          const on = c.event<T>();
-          if (setup) setup(on);
-          yield () => fn(on);
-          on.dispose();
+          yield {
+            [0]() {
+              const on = c.event<T>();
+              if (setup) setup(on);
+              return on;
+            },
+            bench(on: AddEventListener<T>) {
+              return do_not_optimize(fn(on));
+            },
+          };
         });
       }
     };
