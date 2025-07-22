@@ -2,12 +2,9 @@ import type { AddEventListener, Listener } from "../../interface";
 
 import { invoke, SEND } from "../shared";
 
-type Multi<T = void> = Set<Listener<T>>;
-type Single<T = void> = Listener<T> | undefined | null;
-
 interface AddEventListenerImpl<T> extends AddEventListener<T> {
-  listeners_?: Multi<T> | Single<T>;
-  isMulti_?: boolean;
+  multi_?: Set<Listener<T>> | null;
+  single_?: Listener<T> | null;
 }
 
 interface AddEventListenerImplDev<T> extends AddEventListenerImpl<T> {
@@ -23,54 +20,45 @@ function send<T = void>(this: AddEventListenerImpl<T>, data: T): void {
       console.error((this as AddEventListenerImplDev<T>)._eventDisposed_);
     }
   }
-  if (this.isMulti_) {
-    for (const listener of this.listeners_ as Multi<T>) {
+  if (this.multi_) {
+    for (const listener of this.multi_) {
       invoke(listener, data);
     }
-  } else if (this.listeners_) {
-    invoke(this.listeners_ as Listener<T>, data);
+  } else if (this.single_) {
+    invoke(this.single_, data);
   }
 }
 
 function size<T = void>(this: AddEventListenerImpl<T>): number {
-  return !this.listeners_
-    ? 0
-    : !this.isMulti_
-      ? 1
-      : (this.listeners_ as Multi).size;
+  return this.multi_ ? this.multi_.size : this.single_ ? 1 : 0;
 }
 
 function on<T = void>(
   this: AddEventListenerImpl<T>,
   listener: Listener<T>
 ): () => void {
-  if (!this.listeners_) {
-    this.listeners_ = listener;
-  } else if (this.isMulti_) {
-    (this.listeners_ as Multi<T>).add(listener);
-  } else {
-    this.listeners_ = new Set([this.listeners_ as Listener<T>, listener]);
-    this.isMulti_ = true;
-  }
-  return () => this.off(listener);
+  return (
+    this.single_ || this.multi_
+      ? (this.multi_ ??= new Set<Listener<T>>())
+          .add(this.single_!)
+          .add(listener)
+      : (this.single_ = listener),
+    off.bind<AddEventListenerImpl<T>, [Listener<T>], [], boolean>(
+      this,
+      listener
+    )
+  );
 }
 
 function off<T = void>(
   this: AddEventListenerImpl<T>,
   listener?: Listener<T>
 ): boolean {
-  let found = false;
-  if (listener) {
-    if (this.isMulti_) {
-      found = (this.listeners_ as Multi<T>).delete(listener);
-    } else if ((found = this.listeners_ === listener)) {
-      this.listeners_ = null;
-    }
-  } else if ((found = this.size() > 0)) {
-    this.listeners_ = null;
-    this.isMulti_ = false;
-  }
-  return found;
+  return listener
+    ? this.multi_
+      ? this.multi_.delete(listener)
+      : this.single_ === listener && !(this.single_ = null)
+    : this.size() > 0 && !(this.multi_ = this.single_ = null);
 }
 
 function dispose<T = void>(this: AddEventListenerImpl<T>): void {
