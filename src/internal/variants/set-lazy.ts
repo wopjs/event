@@ -38,15 +38,12 @@ function on<T = void>(
   listener: Listener<T>
 ): () => void {
   return (
-    this.single_ || this.multi_
-      ? (this.multi_ ??= new Set<Listener<T>>())
-          .add(this.single_!)
-          .add(listener)
+    this.multi_ || this.single_
+      ? (this.single_ = void (this.multi_ ??= new Set<Listener<T>>().add(
+          this.single_!
+        )).add(listener))
       : (this.single_ = listener),
-    off.bind<AddEventListenerImpl<T>, [Listener<T>], [], boolean>(
-      this,
-      listener
-    )
+    () => this.off(listener)
   );
 }
 
