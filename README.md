@@ -47,7 +47,7 @@ export class A {
     this.dispose.add(
       onOtherEvent(() => {
         send(this.onStatusDidChange, "loading");
-      })
+      }),
     );
   }
 }
@@ -69,7 +69,7 @@ export class B {
     this.dispose.add(
       a.onStatusDidChange(status => {
         console.log(status);
-      })
+      }),
     );
   }
 }
@@ -92,7 +92,7 @@ export class B {
     this.dispose.add(
       onAStatusDidChange(status => {
         console.log(status);
-      })
+      }),
     );
   }
 }

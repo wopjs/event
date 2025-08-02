@@ -22,24 +22,16 @@ export default tsEslint.config(
     },
     rules: {
       "import/no-unresolved": "off",
-      "import/newline-after-import": [
-        "error",
-        { considerComments: true, count: 1 },
-      ],
+      "import/newline-after-import": ["error", { considerComments: true, count: 1 }],
       "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
       "import/no-duplicates": ["error", { considerQueryString: true }],
       "import/order": [
         "error",
         {
           "newlines-between": "always",
-          alphabetize: { order: "asc", caseInsensitive: true },
-          groups: [
-            "object",
-            "type",
-            ["builtin", "external", "internal"],
-            ["parent", "sibling", "index"],
-          ],
-          pathGroups: [
+          "alphabetize": { order: "asc", caseInsensitive: true },
+          "groups": ["object", "type", ["builtin", "external", "internal"], ["parent", "sibling", "index"]],
+          "pathGroups": [
             {
               pattern: "*.+(scss|css|less)",
               patternOptions: { matchBase: true },
@@ -48,13 +40,8 @@ export default tsEslint.config(
             { pattern: "~/**", group: "internal", position: "after" },
             { pattern: "../**", group: "parent", position: "before" },
           ],
-          pathGroupsExcludedImportTypes: [
-            "builtin",
-            "external",
-            "object",
-            "type",
-          ],
-          distinctGroup: false,
+          "pathGroupsExcludedImportTypes": ["builtin", "external", "object", "type"],
+          "distinctGroup": false,
         },
       ],
     },
@@ -81,5 +68,5 @@ export default tsEslint.config(
         },
       ],
     },
-  }
+  },
 );

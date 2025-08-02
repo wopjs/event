@@ -18,5 +18,4 @@ export interface Send {
  * send(onDidChange, "data")
  * ```
  */
-export const send: Send = <T>(event: AddEventListener<T>, data?: T) =>
-  event?.[SEND]?.(data as T);
+export const send: Send = <T>(event: AddEventListener<T>, data?: T) => event?.[SEND]?.(data as T);

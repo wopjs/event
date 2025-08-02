@@ -12,9 +12,7 @@ interface FromImpl extends AddEventListener<unknown> {
  * The `init()` function will be called immediately.
  * The `notify()` function is used to emit data to event listeners.
  */
-export const from = <T = void>(
-  init: (notify: (data: T) => void) => (() => void) | void
-): AddEventListener<T> => {
+export const from = <T = void>(init: (notify: (data: T) => void) => (() => void) | void): AddEventListener<T> => {
   const e = event<T>();
   const stop = init(data => send(e, data));
 
