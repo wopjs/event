@@ -37,9 +37,7 @@ describe.each(cases)("$name", ({ event }) => {
   });
 
   it("should log error if sending data after dispose", () => {
-    const consoleErrorMock = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => void 0);
+    const consoleErrorMock = vi.spyOn(console, "error").mockImplementation(() => void 0);
 
     const onDidChange = event();
     expect(onDidChange).toBeDefined();
@@ -179,9 +177,7 @@ describe.each(cases)("$name", ({ event }) => {
   });
 
   it("should handle throw error", () => {
-    const consoleErrorMock = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => void 0);
+    const consoleErrorMock = vi.spyOn(console, "error").mockImplementation(() => void 0);
 
     const onDidChange = event();
     onDidChange(() => {

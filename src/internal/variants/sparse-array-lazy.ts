@@ -18,9 +18,7 @@ interface AddEventListenerImplDev<T> extends AddEventListenerImpl<T> {
 function send<T = void>(this: AddEventListenerImpl<T>, data: T): void {
   if (process.env.NODE_ENV !== "production") {
     if ((this as AddEventListenerImplDev<T>)._eventDisposed_) {
-      console.error(
-        new Error("[@wopjs/event:dev] Cannot send. Already disposed.")
-      );
+      console.error(new Error("[@wopjs/event:dev] Cannot send. Already disposed."));
       console.error((this as AddEventListenerImplDev<T>)._eventDisposed_);
     }
   }
@@ -37,10 +35,7 @@ function size<T = void>(this: AddEventListenerImpl<T>): number {
   return this.size_;
 }
 
-function on<T = void>(
-  this: AddEventListenerImpl<T>,
-  listener: Listener<T>
-): () => void {
+function on<T = void>(this: AddEventListenerImpl<T>, listener: Listener<T>): () => void {
   if (!this.listeners_) {
     this.listeners_ = listener;
     this.size_ = 1;
@@ -54,10 +49,7 @@ function on<T = void>(
   return () => this.off(listener);
 }
 
-function off<T = void>(
-  this: AddEventListenerImpl<T>,
-  listener?: Listener<T>
-): boolean {
+function off<T = void>(this: AddEventListenerImpl<T>, listener?: Listener<T>): boolean {
   let found = false;
   if (listener) {
     if (this.isMulti_) {
@@ -91,9 +83,7 @@ function off<T = void>(
 
 function dispose<T = void>(this: AddEventListenerImpl<T>): void {
   if (process.env.NODE_ENV !== "production") {
-    (this as AddEventListenerImplDev<T>)._eventDisposed_ = new Error(
-      "[@wopjs/event:dev] Disposed at:"
-    );
+    (this as AddEventListenerImplDev<T>)._eventDisposed_ = new Error("[@wopjs/event:dev] Disposed at:");
   }
   this.off();
 }

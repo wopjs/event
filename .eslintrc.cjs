@@ -28,27 +28,19 @@ const config = {
       },
     ],
     "import/no-unresolved": "off",
-    "import/newline-after-import": [
-      "error",
-      { considerComments: true, count: 1 },
-    ],
+    "import/newline-after-import": ["error", { considerComments: true, count: 1 }],
     "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
     "import/no-duplicates": ["error", { considerQueryString: true }],
     "import/order": [
       "error",
       {
         "newlines-between": "always",
-        alphabetize: {
+        "alphabetize": {
           order: "asc",
           caseInsensitive: true,
         },
-        groups: [
-          "object",
-          "type",
-          ["builtin", "external", "internal"],
-          ["parent", "sibling", "index"],
-        ],
-        pathGroups: [
+        "groups": ["object", "type", ["builtin", "external", "internal"], ["parent", "sibling", "index"]],
+        "pathGroups": [
           {
             pattern: "*.+(scss|css|less)",
             patternOptions: { matchBase: true },
@@ -65,13 +57,8 @@ const config = {
             position: "before",
           },
         ],
-        pathGroupsExcludedImportTypes: [
-          "builtin",
-          "external",
-          "object",
-          "type",
-        ],
-        distinctGroup: false,
+        "pathGroupsExcludedImportTypes": ["builtin", "external", "object", "type"],
+        "distinctGroup": false,
       },
     ],
   },

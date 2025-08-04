@@ -63,7 +63,7 @@ benchVariants("send with 0 listener", on => send(on));
 benchVariants(
   "send with 1 listener",
   on => send(on),
-  on => on(() => {})
+  on => on(() => {}),
 );
 
 benchVariants(
@@ -73,18 +73,16 @@ benchVariants(
     for (let i = 0; i < 10; i++) {
       on(() => {});
     }
-  }
+  },
 );
 
 await run();
 
-function setupBenchVariants(
-  cases: Array<{ name: string; event: <T = void>() => AddEventListener<T> }>
-) {
+function setupBenchVariants(cases: Array<{ name: string; event: <T = void>() => AddEventListener<T> }>) {
   const benchVariants = <T = void>(
     name: string,
     fn: (on: AddEventListener<T>) => void,
-    setup?: (on: AddEventListener<T>) => void
+    setup?: (on: AddEventListener<T>) => void,
   ) => {
     const task = () => {
       for (const c of cases) {
